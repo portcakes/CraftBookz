@@ -1,10 +1,10 @@
-import React from 'react';
-import { useCraftStore } from '../../store';
-import { Clock, Package, RefreshCw } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import { useCraftStore } from "../../store";
+import { Clock, Package, RefreshCw } from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { formatCurrency } from "../../utils/format";
 
 export default function ProductsList() {
-  const { products, recipes, produceProduct } = useCraftStore();
+  const { products, recipes, produceProduct, settings } = useCraftStore();
 
   const handleProduce = (recipeId: string) => {
     produceProduct(recipeId, 1);
@@ -17,7 +17,10 @@ export default function ProductsList() {
         if (!recipe) return null;
 
         return (
-          <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+          <div
+            key={product.id}
+            className="bg-white rounded-lg shadow-md overflow-hidden"
+          >
             {recipe.imageUrl && (
               <img
                 src={recipe.imageUrl}
@@ -27,7 +30,7 @@ export default function ProductsList() {
             )}
             <div className="p-4">
               <h3 className="text-lg font-semibold mb-2">{recipe.name}</h3>
-              
+
               <div className="space-y-3">
                 <div className="flex items-center justify-between text-gray-600">
                   <div className="flex items-center">
@@ -47,7 +50,9 @@ export default function ProductsList() {
 
                 <div className="flex items-center justify-between text-gray-600">
                   <span>Retail Price:</span>
-                  <span className="font-medium">${recipe.retailPrice.toFixed(2)}</span>
+                  <span className="font-medium">
+                    {formatCurrency(recipe.retailPrice, settings.currency)}
+                  </span>
                 </div>
 
                 <button
@@ -67,7 +72,9 @@ export default function ProductsList() {
         <div className="col-span-full flex flex-col items-center justify-center py-12 text-gray-500">
           <Package size={48} className="mb-4" />
           <p className="text-lg">No products in inventory</p>
-          <p className="text-sm">Start producing from your recipes to see them here</p>
+          <p className="text-sm">
+            Start producing from your recipes to see them here
+          </p>
         </div>
       )}
     </div>

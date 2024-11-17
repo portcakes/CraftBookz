@@ -1,27 +1,30 @@
-import React from 'react';
-import { useCraftStore } from '../../store';
-import { Edit, Trash2, Clock, DollarSign } from 'lucide-react';
-import { Recipe } from '../../types';
+import { useCraftStore } from "../../store";
+import { Edit, Trash2, Clock, DollarSign } from "lucide-react";
+import { Recipe } from "../../types";
+import { formatCurrency } from "../../utils/format";
 
 interface RecipeListProps {
   onEdit: (recipe: Recipe) => void;
 }
 
 export default function RecipeList({ onEdit }: RecipeListProps) {
-  const { recipes, materials } = useCraftStore();
+  const { recipes, materials, settings } = useCraftStore();
 
   const getMaterialCost = (recipe: Recipe) => {
     return recipe.materials.reduce((total, material) => {
-      const materialData = materials.find(m => m.id === material.materialId);
+      const materialData = materials.find((m) => m.id === material.materialId);
       if (!materialData) return total;
-      return total + (materialData.cost * material.quantity);
+      return total + materialData.cost * material.quantity;
     }, 0);
   };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {recipes.map((recipe) => (
-        <div key={recipe.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+        <div
+          key={recipe.id}
+          className="bg-white rounded-lg shadow-md overflow-hidden"
+        >
           {recipe.imageUrl && (
             <img
               src={recipe.imageUrl}
@@ -34,7 +37,7 @@ export default function RecipeList({ onEdit }: RecipeListProps) {
             <p className="text-gray-600 text-sm mb-4 line-clamp-2">
               {recipe.description}
             </p>
-            
+
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center text-gray-500">
                 <Clock size={16} className="mr-1" />
@@ -42,7 +45,9 @@ export default function RecipeList({ onEdit }: RecipeListProps) {
               </div>
               <div className="flex items-center text-gray-500">
                 <DollarSign size={16} className="mr-1" />
-                <span className="text-sm">${recipe.retailPrice.toFixed(2)}</span>
+                <span className="text-sm">
+                  {formatCurrency(recipe.retailPrice, settings.currency)}
+                </span>
               </div>
             </div>
 

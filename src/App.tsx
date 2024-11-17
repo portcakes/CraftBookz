@@ -7,6 +7,8 @@ import RecipesView from "./components/recipes/RecipesView";
 import ProductsView from "./components/products/ProductsView";
 import LandingPage from "./components/LandingPage";
 import { SignedIn, SignedOut } from "@clerk/clerk-react";
+import SuppliesView from "./components/supplies/SuppliesView";
+import SettingsView from "./components/settings/SettingsView";
 
 function App() {
   const [activeView, setActiveView] = useState("dashboard");
@@ -26,6 +28,8 @@ function App() {
             {activeView === "materials" && <MaterialsView />}
             {activeView === "recipes" && <RecipesView />}
             {activeView === "products" && <ProductsView />}
+            {activeView === "supplies" && <SuppliesView />}
+            {activeView === "settings" && <SettingsView />}
           </main>
 
           <Toaster position="top-right" />

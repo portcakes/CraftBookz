@@ -4,6 +4,8 @@ import {
   Package,
   Scissors,
   ShoppingCart,
+  Box,
+  Settings,
 } from "lucide-react";
 import { UserButton, SignOutButton } from "@clerk/clerk-react";
 
@@ -18,6 +20,8 @@ export default function Sidebar({ activeView, setActiveView }: SidebarProps) {
     { id: "materials", icon: ShoppingCart, label: "Materials" },
     { id: "recipes", icon: Scissors, label: "Recipes" },
     { id: "products", icon: Package, label: "Products" },
+    { id: "supplies", icon: Box, label: "Supplies" },
+    { id: "settings", icon: Settings, label: "Settings" },
   ];
 
   return (

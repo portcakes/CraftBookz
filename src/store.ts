@@ -1,10 +1,22 @@
 import { create } from 'zustand';
-import { Material, Recipe, Product } from './types';
+import { Material, Recipe, Product, Supply, ActivityLog } from './types';
+
+interface UserSettings {
+  currency: string;
+  shopName: string;
+  shopUrl?: string;
+  etsyUrl?: string;
+  amazonUrl?: string;
+  defaultTaxRate: number;
+}
 
 interface CraftStore {
   materials: Material[];
   recipes: Recipe[];
   products: Product[];
+  supplies: Supply[];
+  activityLogs: ActivityLog[];
+  settings: UserSettings;
   addMaterial: (material: Material) => void;
   updateMaterial: (material: Material) => void;
   deleteMaterial: (id: string) => void;
@@ -12,12 +24,24 @@ interface CraftStore {
   updateRecipe: (recipe: Recipe) => void;
   deleteRecipe: (id: string) => void;
   produceProduct: (recipeId: string, quantity: number) => void;
+  addSupply: (supply: Supply) => void;
+  updateSupply: (supply: Supply) => void;
+  deleteSupply: (id: string) => void;
+  logActivity: (activity: Omit<ActivityLog, 'id' | 'createdAt'>) => void;
+  updateSettings: (settings: Partial<UserSettings>) => void;
 }
 
 export const useCraftStore = create<CraftStore>((set) => ({
   materials: [],
   recipes: [],
   products: [],
+  supplies: [],
+  activityLogs: [],
+  settings: {
+    currency: 'USD',
+    shopName: 'My Craft Shop',
+    defaultTaxRate: 0,
+  },
   
   addMaterial: (material) =>
     set((state) => ({
@@ -93,4 +117,49 @@ export const useCraftStore = create<CraftStore>((set) => ({
         products: updatedProducts,
       };
     }),
+    
+  addSupply: (supply) =>
+    set((state) => {
+      state.logActivity({
+        action: 'Added',
+        entityType: 'Supply',
+        entityId: supply.id,
+        entityName: supply.name,
+      });
+      return { supplies: [...state.supplies, supply] };
+    }),
+    
+  updateSupply: (supply) =>
+    set((state) => {
+      state.logActivity({
+        action: 'Updated',
+        entityType: 'Supply',
+        entityId: supply.id,
+        entityName: supply.name,
+      });
+      return {
+        supplies: state.supplies.map((s) => (s.id === supply.id ? supply : s)),
+      };
+    }),
+    
+  deleteSupply: (id) =>
+    set((state) => ({
+      supplies: state.supplies.filter((s) => s.id !== id),
+    })),
+    
+  logActivity: (activity) =>
+    set((state) => ({
+      activityLogs: [
+        { id: crypto.randomUUID(), createdAt: new Date(), ...activity },
+        ...state.activityLogs,
+      ].slice(0, 100), // Keep only last 100 activities
+    })),
+    
+  updateSettings: (newSettings) =>
+    set((state) => ({
+      settings: {
+        ...state.settings,
+        ...newSettings,
+      },
+    })),
 }));

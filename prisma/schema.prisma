@@ -1,0 +1,161 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Unit {
+  KG
+  G
+  L
+  ML
+  LB
+  OZ
+  EACH
+  PACK
+  BOX
+  CASE
+  TRAY
+  ROLL
+  BAG
+  BARREL
+  CAN
+}
+
+enum SupplyType {
+  PACKAGING
+  LABEL
+  TAG
+  RIBBON
+  TOOL
+  OTHER
+}
+
+model User {
+  id        String     @id @default(cuid())
+  clerkId   String     @unique
+  email     String     @unique
+  name      String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  materials Material[]
+  recipes   Recipe[]
+  products  Product[]
+  supplies  Supply[]
+
+  ActivityLog ActivityLog[]
+}
+
+model Material {
+  id           String       @id @default(cuid())
+  name         String
+  description  String?
+  quantity     Float
+  unit         Unit
+  cost         Float
+  reorderPoint Float
+  userId       String
+  user         User         @relation(fields: [userId], references: [id])
+  recipeItems  RecipeItem[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@index([userId])
+}
+
+model Recipe {
+  id             String         @id @default(cuid())
+  name           String
+  description    String?
+  imageUrl       String?
+  retailPrice    Float
+  wholesalePrice Float
+  estimatedTime  Int
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  materials      RecipeItem[]
+  steps          CraftingStep[]
+  products       Product[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([userId])
+}
+
+model RecipeItem {
+  id         String   @id @default(cuid())
+  quantity   Float
+  recipeId   String
+  materialId String
+  recipe     Recipe   @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+  material   Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+  @@index([materialId])
+}
+
+model CraftingStep {
+  id            String @id @default(cuid())
+  description   String
+  estimatedTime Int
+  orderIndex    Int
+  recipeId      String
+  recipe        Recipe @relation(fields: [recipeId], references: [id], onDelete: Cascade)
+
+  @@index([recipeId])
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  quantity     Int
+  recipeId     String
+  userId       String
+  recipe       Recipe   @relation(fields: [recipeId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
+  lastProduced DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([userId])
+  @@index([recipeId])
+}
+
+model Supply {
+  id           String     @id @default(cuid())
+  name         String
+  description  String?
+  type         SupplyType
+  quantity     Float
+  unit         Unit
+  cost         Float
+  reorderPoint Float
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([userId])
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  action     String
+  entityType String
+  entityId   String
+  entityName String
+  details    String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+}

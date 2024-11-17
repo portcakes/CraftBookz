@@ -33,3 +33,41 @@ export interface Product {
   quantity: number;
   lastProduced: Date;
 }
+
+export type SupplyType = 'PACKAGING' | 'LABEL' | 'TAG' | 'RIBBON' | 'TOOL' | 'OTHER';
+
+export type Unit =
+  | "PCS"
+  | "KG"
+  | "G"
+  | "L"
+  | "ML"
+  | "M"
+  | "CM"
+  | "EACH"
+  | "BOX"
+  | "ROLL"
+  | "SET"
+  | "PAIR"
+  | "PACKAGE";
+
+export interface Supply {
+  id: string;
+  name: string;
+  description?: string;
+  type: SupplyType;
+  quantity: number;
+  unit: Unit;
+  cost: number;
+  reorderPoint: number;
+}
+
+export interface ActivityLog {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  entityName: string;
+  details?: string;
+  createdAt: Date;
+}

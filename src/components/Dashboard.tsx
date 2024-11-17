@@ -1,9 +1,18 @@
 import React from "react";
 import { useCraftStore } from "../store";
-import { AlertTriangle, TrendingUp, Package, Clock } from "lucide-react";
+import {
+  AlertTriangle,
+  TrendingUp,
+  Package,
+  Clock,
+  Activity,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
+import { formatCurrency } from "../utils/format";
 
 export default function Dashboard() {
-  const { materials, recipes, products } = useCraftStore();
+  const { materials, recipes, products, activityLogs, settings } =
+    useCraftStore();
 
   const lowStockMaterials = materials.filter(
     (m) => m.quantity <= m.reorderPoint
@@ -14,6 +23,36 @@ export default function Dashboard() {
     if (!recipe) return total;
     return total + recipe.retailPrice * product.quantity;
   }, 0);
+
+  const ActivityFeed = () => {
+    return (
+      <div className="bg-white rounded-lg shadow-md p-6">
+        <div className="flex items-center mb-4">
+          <Activity className="text-indigo-600 mr-2" />
+          <h3 className="text-lg font-semibold">Recent Activity</h3>
+        </div>
+
+        <div className="space-y-4">
+          {activityLogs.slice(0, 10).map((log) => (
+            <div key={log.id} className="flex items-start space-x-3">
+              <div className="w-2 h-2 mt-2 rounded-full bg-indigo-600" />
+              <div>
+                <p className="text-sm text-gray-600">
+                  {log.action} {log.entityType.toLowerCase()}: {log.entityName}
+                </p>
+                {log.details && (
+                  <p className="text-xs text-gray-500 mt-1">{log.details}</p>
+                )}
+                <p className="text-xs text-gray-400 mt-1">
+                  {formatDistanceToNow(log.createdAt)} ago
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="p-6">
@@ -40,7 +79,7 @@ export default function Dashboard() {
         />
         <DashboardCard
           title="Inventory Value"
-          value={`$${totalInventoryValue.toFixed(2)}`}
+          value={formatCurrency(totalInventoryValue, settings.currency)}
           icon={TrendingUp}
           color="bg-purple-500"
         />
@@ -61,6 +100,8 @@ export default function Dashboard() {
           </ul>
         </div>
       )}
+
+      <ActivityFeed />
     </div>
   );
 }
